@@ -13,9 +13,7 @@ Description: Trying to figure out and manipulate CMap
     * fname (usually set to 'regional')
     * exportDataFlag (whether the map should be exported or not)
 
-  Retrieves desired data from mySQL database and
-  feeds data into structuredMap() to reformat,
-  feeds reformatted data into bokehMap() for graphing/mapping
+  Retrieves desired data from mySQL database and feeds data into **structuredMap()** to reformat, feeding reformatted data into **bokehMap()** for graphing/mapping.
 
 ### structuredMap()
   Takes in:
