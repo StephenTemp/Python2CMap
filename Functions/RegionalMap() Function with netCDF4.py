@@ -3,7 +3,7 @@
 
 # ## Reformat NetCDF4 File for Function Call
 
-# In[4]:
+# In[20]:
 
 
 import opedia
@@ -27,7 +27,7 @@ from netCDF4 import num2date, date2num
 tFile = netCDF4.Dataset('http://engaging-opendap.mit.edu:8080/thredds/dodsC/las/id-a1d60eba44/data_usr_local_tomcat_content_cbiomes_20190510_20_darwin_v0.2_cs510_darwin_v0.2_cs510_nutrients.nc.jnl')
 
 
-# In[14]:
+# In[90]:
 
 
 tables = [tFile]
@@ -45,23 +45,16 @@ regionalMap(tables, variables, startDate, endDate, lat1, lat2, lon1, lon2, depth
 
 # ### RegionalMap Method (Takes NetCDF4 Files) ###
 
-# In[13]:
+# In[64]:
 
 
 def regionalMap(tables, variabels, dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2, fname, exportDataFlag):
     for i in tqdm(range(len(tables)), desc='overall'):
         subTime = dt1
         
-        #testing goin' on here-----------------------
-       # df = xr.open_dataset(tables[i])
-        
-        #testing------------------------------------
-        
         dt1 = date2num(datetime.combine(datetime.strptime(dt1, '%Y-%m-%d'), datetime.min.time()), units = (tables[i].variables['TIME'].units))
         dt2 = date2num(datetime.combine(datetime.strptime(dt2, '%Y-%m-%d'), datetime.min.time()), units = (tables[i].variables['TIME'].units))
         times = tables[i].variables['TIME'][:]
-        
-        print((tables[i].variables['TIME'].units))
         
         minTimeIndex = findClosestIndex(times, dt1)
         maxTimeIndex = (np.abs(times[::-1] - dt2)).argmin() + 1
@@ -84,8 +77,6 @@ def regionalMap(tables, variabels, dt1, dt2, lat1, lat2, lon1, lon2, depth1, dep
         
         varData = tables[i].variables[variables[i]][0, 0, minLatDex : maxLatDex, minLonDex : maxLonDex]
         varTestData = tables[i].variables[variables[i]][0, 0, 0, minLonDex : maxLonDex]
-        print(varTestData.shape)
-        print(varTestData)
 
         unit = '[' + variables[i] + ' [' + tables[i].variables[variables[i]].units + '], time: ' + str(subTime) + ']'
         
@@ -101,13 +92,14 @@ def regionalMap(tables, variabels, dt1, dt2, lat1, lat2, lon1, lon2, depth1, dep
         bokehMap(varData, unit, 'regional', lats, lons, unit, 'OTHER', variables[i])
 
 
-# In[6]:
+# In[89]:
 
 
 def bokehMap(data, subject, fname, lat, lon, units, tables, variabels):
     TOOLS="crosshair,pan,zoom_in,wheel_zoom,zoom_out,box_zoom,reset,save,"
     p = []
     for ind in range(len(data)):
+
         w, h = com.canvasRect(dw=np.max(lon[ind])-np.min(lon[ind]), dh=np.max(lat[ind])-np.min(lat[ind]))
         p1 = figure(tools=TOOLS, toolbar_location="right", title=subject[ind], plot_width=w, plot_height=h, x_range=(np.min(lon[ind]), np.max(lon[ind])), y_range=(np.min(lat[ind]), np.max(lat[ind])))
         p1.xaxis.axis_label = 'Longitude'
@@ -146,7 +138,7 @@ def bokehMap(data, subject, fname, lat, lon, units, tables, variabels):
     return
 
 
-# In[7]:
+# In[6]:
 
 
 def findClosestIndex(list, value):
@@ -155,11 +147,51 @@ def findClosestIndex(list, value):
     return index
 
 
-# In[69]:
+# In[91]:
 
 
 xFile = xr.open_dataset('http://engaging-opendap.mit.edu:8080/thredds/dodsC/las/id-a1d60eba44/data_usr_local_tomcat_content_cbiomes_20190510_20_darwin_v0.2_cs510_darwin_v0.2_cs510_nutrients.nc.jnl')
-df = xFile.to_dataframe()
+
+tables = [xFile]
+variables = ['O2']
+startDate = '2016-04-30'
+endDate = '2017-04-30'
+lat1, lat2 = -50, 90
+lon1, lon2 = -100, 170
+depth1, depth2 = 0, 50
+fname = 'regional'
+exportDataFlag = False
+
+xarrayRegionalMap(tables, variables, startDate, endDate, lat1, lat2, lon1, lon2, depth1, depth2, fname, exportDataFlag)
+
+
+# In[87]:
+
+
+def xarrayRegionalMap(tables, variabels, dt1, dt2, lat1, lat2, lon1, lon2, depth1, depth2, fname, exportDataFlag):
+    for i in tqdm(range(len(tables)), desc='overall'):
+        
+        unit = tables[i].variables[variables[i]].attrs['units']
+        
+        toDateTime = tables[i].indexes['TIME'].to_datetimeindex()
+        tables[i]['TIME'] = toDateTime
+        table = tables[i].sel(TIME = slice(startDate, endDate), LAT_C = slice(lat1, lat2), LON_C = slice(lon1, lon2), DEP_C = slice(depth1, depth2))
+        
+        varData = table.variables[variables[i]][0,0,:,:].values       
+        
+        lats = table.variables['LAT_C'].values.tolist()
+        lons = table.variables['LON_C'].values.tolist()
+        
+        shape = (len(lats), len(lons))
+        
+        varData.reshape(shape)
+
+        varData[varData < 0] = float('NaN')
+        varData = [np.asarray(varData)]
+        lats = [np.asarray(lats)]
+        lons = [np.asarray(lons)]
+        
+        bokehMap(varData, unit, 'regional', lats, lons, unit, 'OTHER', variables[i])
 
 
 # In[ ]:
