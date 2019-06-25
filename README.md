@@ -3,6 +3,8 @@ Description: Trying to figure out and manipulate CMap
 
 ## Understanding CMap Functions
 
+## MAIN FUNCTIONS (PLOTTING)
+
 ### regionalMap()
   Takes in:
 
@@ -14,6 +16,19 @@ Description: Trying to figure out and manipulate CMap
     * exportDataFlag (whether the map should be exported or not)
 
   Retrieves desired data from mySQL database and feeds data into **structuredMap()** to reformat, feeding reformatted data into **bokehMap()** for graphing/mapping.
+
+### timeSeries()
+  Takes in:
+
+    * list of tables to map with parallel list of variables
+    * start and end dates
+    * range of latitude and longitude data
+    * range of depths
+    * fname (usually set to 'regional')
+    * exportDataFlag (whether the map should be exported or not)
+
+
+## ------------------------------------------
 
 ### structuredMap()
   Takes in:
