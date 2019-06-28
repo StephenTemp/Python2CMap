@@ -15,7 +15,7 @@ Description: Trying to figure out and manipulate CMap
     * fname (usually set to 'regional')
     * exportDataFlag (whether the map should be exported or not)
 
-  Retrieves desired data from mySQL database and feeds data into **structuredMap()** to reformat, feeding reformatted data into **bokehMap()** for graphing/mapping.
+  Retrieves desired data from mySQL database and feeds data into **structuredMap()** to reformat, feeding reformatted data into **bokehMap()** for graphing/mapping. Maps data primarily using lat and lon values onto the world map.
 
 ### timeSeries()
   Takes in:
@@ -27,7 +27,12 @@ Description: Trying to figure out and manipulate CMap
     * fname (usually set to 'regional')
     * exportDataFlag (whether the map should be exported or not)
 
+    Retrieves data from helper method but otherwise does all operations itself (no **structuredMap**, **bokehMap**). Plots graphs based primarily on time values (mapping to the given variable).
 
+### histogram()
+  Takes in: same as above (most of these functions do)
+
+  Creates a histogram plotting the 'density' of specific values from your variables dataset. Worried this one may be less stable due to some reformatting with the **depth** dimension, but it hasn't crashed on me yet and I've tried out the majority of **depth** values
 ## ------------------------------------------
 
 ### structuredMap()
